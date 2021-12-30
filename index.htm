@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Slider</title>
+	
+	<style>	    
+	    img {
+	        margin:5px;
+	    }
+	    
+	    img.thumbImg{
+	        cursor:pointer;
+	    }
+	
+	</style>
+	
+	<script>
+	
+		// Global variable for the image array
+    	var arrImage = ["alpha", "beta", "gamma", "delta", "epsilon"];
+
+		// Function: run onload
+		// To run functions that sets the main image and thumbnail strip
+		function firstLoad() {
+
+	    	createThumbs();     // Function: display the thumbnail strip (go into HTML)
+	    	setMainImage(0);    // Function: display the main image depending on the image index (parameter). Set to 0 for now 	
+		}
+
+		// Function: display main image
+		// numCurrIndex is the parameter that stores the index of the image displayed in the main image area. 
+		// Since we set the setMainImage function to 0 earlier, numCurrIndex is 0 for now and the image alphaFull.png is displayed because its index is 0. 
+		function setMainImage(numCurrIndex) {
+
+			// Put the image in
+			// Concatenate the image locations and names
+			//		-arrImage is the global variable that holds the image array which are the lower camel case portions of the image name
+			//		-numCurrImage stores the index of the current image 
+			//		-the index of arrImage is numCurrIndex to display the proper image file according to the current index
+			document.getElementById("imgMain").src = "images/" + arrImage[numCurrIndex] + "Full.png";
+
+			// txtCurrIndex is the hidden textbox that needs to store the index number value of the image array (arrImage). 
+			// The value of it should be the same as numCurrIndex because they both need to hold the index of the current selected/displayed image.
+			document.getElementById("txtCurrIndex").value = numCurrIndex;    
+
+			// Function: selected image needs to have opacity: 1 and unselected images opacity: 0.75
+			// The thumbnails' index should be the same as the main images' index, so the parameter is numCurrIndex
+       		updateThumbs(numCurrIndex);
+		}
+
+		// Function: display the thumbnails
+		// Put images into HTML in the div id: "divThumbArea"
+		function createThumbs() {
+
+			// Empty string so that HTML code string can be put in later within this function
+			let thumbStrip = "";
+
+			// Create a loop
+			// Needs to loop through the image array (arrImage) to display all of the thumbnail images 
+			// for(set variable before loop starts; condition; increment)
+			for(let i = 0; i < arrImage.length; i++) {
+
+				// The HTML code string to go into the div id: "divThumbArea"
+       			// Added the event-handler: onclick to run the function: setMainImage with a parameter of i from for loop (index) with set conditions
+			   	// When a thumbnail is clicked on, it is displayed as the main image
+			   	// The main image's index is the same as the thumbnail's index
+			   	// A class was added to each of the images to create a collection of all the elements
+			   	// This will be applied throughout the loop (all the image arrays)
+				thumbStrip += "<img src=\"images/" + arrImage[i] + "Thumb.png\" class=\"thumbImg\" onclick=\"setMainImage(" + i +")\">";
+			}
+
+			// Insert thumbStrip into the HTML in the div id: "divThumbArea"
+			//		-thumbStrip contains the concatenated strings, and the variable that stores the index of the currently displayed image, which makes the image location + name
+			document.getElementById("divThumbArea").innerHTML = thumbStrip; // The thumbnail strip is now displayed on the screen under the main image
+		}
+
+		// function: was called in setMainImage. Parameter is index of currently displayed/selected image (numCurrIndex)
+		// Selected image thumbnail should have opacity: 1, and unselected image thumbnails should have opacity: 0.75
+		function updateThumbs(numCurrIndex) {
+
+			// Create a collection of elements
+			//		-Added a class into the HTML in line 72. The thumbStrip variable.
+			//		-Class because I need to get a collection (multiple) elements 
+			// Created the collection of elements by:
+			//		-Adding a class into thumbStrip (thumbStrip contains the HTML code which is inserted into the HTML in the div id: "divThumbArea" which displays the thumbnail strip)
+			//		-Used the method: getElementsByClassName to access the class that was just created
+			var thumbColl = document.getElementsByClassName("thumbImg");
+
+			// for loop: to loop through the elements inside of the collection created
+			// i is the index of the collection elements
+			for(let i = 0; i < thumbColl.length; i++) {
+
+				// if else: to make opacity=1 if image is selected/displayed, and opacity=0.75 if it's not
+				// i and numCurrIndex must be equal because numCurrIndex stores the index of the selected/displayed image
+				// If numCurrIndex and i are equal, that means the image is selected/displayed
+				if(numCurrIndex == i) {
+					thumbColl[i].style.opacity = 1;
+				// If numCurrIndex and i are not equal, the image is not selected/displayed
+				} else {
+					thumbColl[i].style.opacity = 0.75;
+				}
+			}
+		} 
+
+		// Function: when clicked, the very first image of the slider should be displayed.
+		function navFirst() {
+
+			// When clicked, setMainImage function is called with parameter of 0
+			// The index of the first image of the slider will always be 0.
+			setMainImage(0);
+		}
+
+		// Function: when clicked, the very last image of the slider should be displayed.
+		function navLast() {
+
+			// If the parameter was set to JUST arrImage.length, the index would go up to 5 which would be one too much
+			// Index goes up to one less than the number of elements because index starts at 0
+			// When clicked, setMainImage function is called with parameter of one less than the length of the image array created at the start as a global variable, which will target the last index of the array
+			setMainImage(arrImage.length - 1);
+		}
+
+		// Function: when clicked, the next image in the slider is shown
+		//		-Index + 1
+		//		-To note: the image displayed after the last image should be the first image
+		function navNext() {
+
+			// to store the index of the image that's currently displayed/selected
+			// Value of txtCurrIndex is the same as numCurrIndex
+			let currIndex = parseInt(document.getElementById("txtCurrIndex").value);
+
+			// to store the index of the last image
+			// One less than the length of the image array (arrImage global variable) is the index number of the last image because index starts at 0
+			let lastIndex = arrImage.length - 1;
+
+			// to store the index of the next image
+			// +1 to the value of the current index number = next image
+			let nextIndex = currIndex + 1;
+
+			// If the value of the current index+1 is larger than the value of the index of the last image, go to the first image
+			//		-Last index is the maximum index number (last image of the slider) so the index number cannot go over that 
+			if(nextIndex>lastIndex) {
+				// First image's index is always 0
+				setMainImage(0);
+			} else {  
+				// If the index of the next image is not bigger than the last index, then the index can proceed to go up by 1
+				setMainImage(nextIndex);
+			}
+		}
+
+		function navPrev() {
+
+			// to store the index of the image that's currently displayed/selected
+			let currIndex = parseInt(document.getElementById("txtCurrIndex").value);
+
+			// to store the index of the first image (always 0)
+			let firstIndex = 0;
+
+			// to store the index of the previous image
+			// index number decreases by one = previous image
+			let prevIndex = currIndex - 1;
+		
+			// prevIndex will always decrease by 1 but 0 is the minimum so it cannot go lower than 0
+			// if the index is at 0, instead of decreasing the index by 1, it will go back to the last image of the slider
+			if(prevIndex<firstIndex) {
+				setMainImage(arrImage.length - 1);
+			// If the index is not lower than 0, it will continue to decrease by 1.
+			} else {
+				setMainImage(prevIndex);
+			}
+		}	
+    </script>
+</head>
+<body onload="firstLoad();">
+
+	
+	<div style="text-align:center;">
+	    <table>
+	        <tr>
+	            <td></td>
+	            <td style="text-align:center;">
+                    <div><img id="imgMain" alt="Main Image"/></div>
+
+
+                    <div style="visibility:hidden;"><input id="txtCurrIndex"/></div>    
+                </td>
+	            <td></td>
+	        
+	        </tr>
+	        <tr>
+	            <td>
+	                <img src="images/First.png" onclick="navFirst();" />            
+	                <img src="images/Prev.png" onclick="navPrev();" />
+	            </td>
+	            <td>
+	                <div id="divThumbArea"></div>	        
+	            </td>
+	            <td>
+	                <img src="images/Next.png" onclick="navNext();" />            
+	                <img src="images/Last.png" onclick="navLast();" />
+	            </td>
+	        </tr>	    
+	    </table>       
+	</div>
+</body>
+</html>
